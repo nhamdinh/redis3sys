@@ -1,12 +1,19 @@
 const express = require("express");
 const redis = require("redis");
-const app = express();
-const client = redis.createClient();
+const NRP = require("node-redis-pubsub");
+const config = {
+  port: 6379,
+  scope: "order",
+};
 
-const publish = client.duplicate();
-(async () => {
-  await publish.connect();
-})();
+const nrp = new NRP(config);
+const app = express();
+// const client = redis.createClient();
+
+// const publish = client.duplicate();
+// (async () => {
+//   await publish.connect();
+// })();
 
 app.get("/order", async (req, res) => {
   const orders = [
@@ -19,7 +26,7 @@ app.get("/order", async (req, res) => {
       quantity: 70000,
     },
   ];
-  await publish.publish("ordsystem", JSON.stringify(orders));
+  nrp.emit("ordsystem", JSON.stringify(orders));
 
   res.json({
     status: 200,

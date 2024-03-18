@@ -2,16 +2,16 @@ const express = require("express");
 const redis = require("redis");
 
 const app = express();
-const client = redis.createClient();
+const NRP = require("node-redis-pubsub");
+const config = {
+  port: 6379,
+  scope: "order",
+};
 
-const subscriber = client.duplicate();
-(async () => {
-  await subscriber.connect();
-
-  await subscriber.subscribe("ordsystem", (message) => {
-    console.log(JSON.parse(message)); // 'message'
-  });
-})();
+const nrp = new NRP(config);
+nrp.on("ordsystem", (data) => {
+  console.log(data);
+});
 app.listen(3001, () => {
   `server payment is running port 3001`;
 });

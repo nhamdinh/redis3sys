@@ -2,19 +2,17 @@ const express = require("express");
 const redis = require("redis");
 
 const app = express();
-const client = redis.createClient();
+const NRP = require("node-redis-pubsub");
+const config = {
+  port: 6379,
+  scope: "order",
+};
 
-const subscriber = client.duplicate();
-(async () => {
-  await subscriber.connect();
+const nrp = new NRP(config);
+nrp.on("ordsystem", (data) => {
+  console.log(data);
+});
 
-  await subscriber.subscribe("ordsystem", ( message) => {
-    console.log(JSON.parse(message)); // 'message'
-  });
-  // await subscriber.psubscribe("o*", ( message) => {
-  //   console.log(JSON.parse(message)); // 'message'
-  // });
-})();
 app.listen(3002, () => {
   `server sendmail is running port 3002`;
 });
